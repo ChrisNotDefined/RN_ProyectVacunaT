@@ -29,7 +29,7 @@ const LoginPage = () => {
           value="Iniciar Sesion"
         />
         <ButtonComponent
-          type="defult"
+          type="defualt"
           onPress={() => {
             navigation.navigate("Register");
           }}

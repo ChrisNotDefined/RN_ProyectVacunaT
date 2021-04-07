@@ -1,8 +1,11 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
+import AppBar from "../components/AppBar";
 
 const InfoPage = () => {
   return (
+    <>
+    <AppBar/>
     <View style={styles.container}>
       <Text>Info Page</Text>
       <Image
@@ -13,6 +16,7 @@ const InfoPage = () => {
         }}
       />
     </View>
+    </>
   );
 };
 
