@@ -12,7 +12,6 @@ const LoginPage = () => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <View style={{ backgroundColor: Colors.COLOR_ACCENT, height: 24 }} />
       <AppBar />
       <View style={styles.container}>
         <InputComponent initialValue={""} placeholder={"Usuario"} />
@@ -26,10 +25,10 @@ const LoginPage = () => {
           onPress={() => {
             navigation.navigate("Home");
           }}
-          value="Iniciar Sesion"
+          value="Iniciar Sesión"
         />
         <ButtonComponent
-          type="defualt"
+          type="primary"
           onPress={() => {
             navigation.navigate("Register");
           }}
