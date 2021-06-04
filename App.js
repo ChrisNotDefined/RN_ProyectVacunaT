@@ -18,21 +18,21 @@ export default function App() {
     <>
       <StatusBar style="auto" />
       <SafeAreaView style={{ flex: 1 }}>
-          <NavigationContainer>
-            <Stack.Navigator headerMode="none">
-              <Stack.Screen name="Login" component={LoginPage} />
+        <NavigationContainer>
+          <Stack.Navigator headerMode="none">
+            <Stack.Screen name="Login" component={LoginPage} />
 
-              <Stack.Screen name="Register" component={RegisterPage} />
+            <Stack.Screen name="Register" component={RegisterPage} />
 
-              <Stack.Screen name="Home" component={HomePage} />
+            <Stack.Screen name="Home" component={HomePage} />
 
-              <Stack.Screen name="Info" component={InfoPage} />
+            <Stack.Screen name="Info" component={InfoPage} />
 
-              <Stack.Screen name="Request" component={RequestPage} />
+            <Stack.Screen name="Request" component={RequestPage} />
 
-              <Stack.Screen name="Status" component={StatusPage} />
-            </Stack.Navigator>
-          </NavigationContainer>
+            <Stack.Screen name="Status" component={StatusPage} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </SafeAreaView>
     </>
   );

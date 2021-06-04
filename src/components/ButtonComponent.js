@@ -46,6 +46,7 @@ const styles_primary = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textTransform: "uppercase",
+    textAlign: "center",
   },
 });
 
@@ -65,6 +66,7 @@ const styles_defualt = StyleSheet.create({
     color: Colors.COLOR_PRIMARY,
     fontWeight: "bold",
     textTransform: "uppercase",
+    textAlign: "center",
   },
 });
 
