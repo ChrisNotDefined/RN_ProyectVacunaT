@@ -31,7 +31,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
-    height: '100%',
+    height: "100%",
+    textShadowColor: "#0008",
+    textShadowRadius: 10,
+    textShadowOffset: {
+      height: 3,
+    },
   },
 });
 

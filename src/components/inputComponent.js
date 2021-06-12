@@ -11,10 +11,12 @@ const InputComponent = (props) => {
     onChangeText,
     onFocus,
     onPressIn,
+    keyboardType,
   } = props;
   return (
     <View style={[styles.inputContainer, externalStyles]}>
       <TextInput
+        keyboardType={keyboardType}
         onPressIn={onPressIn}
         onFocus={onFocus}
         placeholder={placeholder}

@@ -8,17 +8,32 @@ import InfoPage from "./src/pages/InfoPage";
 import RequestPage from "./src/pages/RequestPage";
 import StatusPage from "./src/pages/StatusPage";
 
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { firebaseAuth } from "./src/utils/firebaseConfig";
 
 const Stack = createStackNavigator();
 
 export default function App() {
+
+  // const navigation = useNavigation();
+  const navRef = React.useRef(null);
+
+  firebaseAuth.onAuthStateChanged((user) => {
+    if(user) {
+      console.log('User logged in');
+      navRef.current?.navigate('Home');
+    } else {
+      console.log('No user');
+      navRef.current?.navigate('Login');
+    }
+  })
+
   return (
     <>
       <StatusBar style="auto" />
       <SafeAreaView style={{ flex: 1 }}>
-        <NavigationContainer>
+        <NavigationContainer ref={navRef}>
           <Stack.Navigator headerMode="none">
             <Stack.Screen name="Login" component={LoginPage} />
 
