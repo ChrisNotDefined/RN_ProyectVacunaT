@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import AppBar from "../components/AppBar";
+import { Picker } from "@react-native-picker/picker";
 import InputComponent from "../components/inputComponent";
 import Colors from "../utils/Colors";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -12,6 +13,7 @@ const RequestPage = () => {
   const initialDate = new Date(Date.now());
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pickerValue, setPickerValue] = useState("Hombre");
 
   const changeDate = (e, value) => {
     setShowDatePicker(false);
@@ -70,7 +72,7 @@ const RequestPage = () => {
                   }}
                 >
                   <Text style={styles.dateText}>
-                    {date.toLocaleDateString('es-es')}
+                    {date.toLocaleDateString("es-es")}
                   </Text>
                   <Entypo name="calendar" size={24} color="black" />
                 </View>
@@ -96,10 +98,18 @@ const RequestPage = () => {
                 style={{ minWidth: "45%" }}
                 placeholder={"Edad"}
               />
-              <InputComponent
-                style={{ minWidth: "45%" }}
-                placeholder={"Sexo"}
-              />
+              <View style={[styles.sexInput, { minWidth: "45%" }]}>
+                <Picker
+                  style={{ padding: 0 }}
+                  selectedValue={pickerValue}
+                  onValueChange={(val, i) => {
+                    setPickerValue(val);
+                  }}
+                >
+                  <Picker.Item label="Hombre" value="Hombre" />
+                  <Picker.Item label="Mujer" value="Mujer" />
+                </Picker>
+              </View>
             </View>
             <ButtonComponent
               type="default"
@@ -147,6 +157,13 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     paddingHorizontal: 4,
     paddingVertical: 8,
+    borderRadius: 10,
+    borderColor: Colors.COLOR_ACCENT,
+    backgroundColor: "white",
+  },
+  sexInput: {
+    paddingHorizontal: 4,
+    borderWidth: 3,
     borderRadius: 10,
     borderColor: Colors.COLOR_ACCENT,
     backgroundColor: "white",

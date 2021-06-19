@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { View, StyleSheet, SafeAreaView } from "react-native";
+import { View, StyleSheet, SafeAreaView, Alert } from "react-native";
 import InputComponent from "../components/inputComponent";
 import ButtonComponent from "../components/ButtonComponent";
 import { useNavigation } from "@react-navigation/core";
 import Colors from "../utils/Colors";
 import AppBar from "../components/AppBar";
-import { validateEmail } from "../utils/validation";
-import { firebaseAuth } from "../utils/firebaseConfig";
+import { isEmpty, validateEmail } from "../utils/validation";
+import { firebaseAuth, getAuthErrorMsg } from "../utils/firebaseConfig";
 import { ScrollView } from "react-native-gesture-handler";
 
 const LoginPage = () => {
@@ -14,28 +14,38 @@ const LoginPage = () => {
   const [loginData, setLoginData] = useState(defaultValue);
   const [formError, setFormError] = useState({});
 
-  const login = () => {
+  const login = async () => {
     let error = {};
-    if (!loginData.email || !loginData.password) {
-      if (!loginData.email) error.email = true;
-      if (!loginData.password) error.password = true;
+    if (isEmpty(loginData.email) || isEmpty(loginData.password)) {
+      if (!loginData.email || loginData.email == "") {
+        error.email = true;
+      }
+      if (!loginData.password || loginData.password == "") {
+        error.password = true;
+      }
+      Alert.alert("Aviso", "Todos los campos son requeridos", [{ text: "OK" }]);
     } else if (!validateEmail(loginData.email)) {
       error.email = true;
-      // error.password = true;
+      Alert.alert("Aviso", "Email no válido", [{ text: "OK" }]);
     } else {
-      firebaseAuth
-        .signInWithEmailAndPassword(loginData.email, loginData.password)
-        .then(() => {
+      try {
+        const credentials = await firebaseAuth.signInWithEmailAndPassword(
+          loginData.email,
+          loginData.password
+        );
+
+        if (credentials) {
           console.log("Entro");
           navigation.navigate("Home");
-        })
-        .catch(() => {
-          console.log("Error");
-          setFormError({
-            email: true,
-            password: true,
-          });
+        }
+      } catch (err) {
+        console.log("[Error]: " + err.code);
+        Alert.alert("Error", getAuthErrorMsg(err.code), [{ text: "OK" }]);
+        setFormError({
+          email: true,
+          password: true,
         });
+      }
     }
     setFormError(error);
   };
@@ -52,12 +62,16 @@ const LoginPage = () => {
         contentContainerStyle={styles.scrollChild}
       >
         <InputComponent
+          style={styles.formInput}
+          hasError={formError["email"]}
           initialValue={""}
           placeholder={"Email"}
           onChangeText={(e) => onChange(e, "email")}
         />
         <View style={{ height: 10 }} />
         <InputComponent
+          style={styles.formInput}
+          hasError={formError["password"]}
           isPassword={true}
           initialValue={""}
           placeholder={"Contraseña"}
@@ -86,8 +100,8 @@ const LoginPage = () => {
 
 function defaultValue() {
   return {
-    email: {},
-    password: {},
+    email: null,
+    password: null,
   };
 }
 
@@ -101,6 +115,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  formInput: {
+    width: "80%",
   },
 });
 

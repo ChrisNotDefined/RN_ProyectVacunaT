@@ -4,6 +4,7 @@ import Colors from "../utils/Colors";
 
 const InputComponent = (props) => {
   const {
+    hasError,
     value,
     isPassword,
     placeholder,
@@ -14,14 +15,14 @@ const InputComponent = (props) => {
     keyboardType,
   } = props;
   return (
-    <View style={[styles.inputContainer, externalStyles]}>
+    <View style={[styles.inputContainer, externalStyles, hasError ? styles.error : null]}>
       <TextInput
         keyboardType={keyboardType}
         onPressIn={onPressIn}
         onFocus={onFocus}
         placeholder={placeholder}
         secureTextEntry={isPassword ?? false}
-        style={styles.inputText}
+        style={[styles.inputText]}
         value={value}
         onChangeText={onChangeText}
       />
@@ -41,6 +42,9 @@ const styles = StyleSheet.create({
   },
   inputText: {
     fontSize: 20,
+  },
+  error: {
+    borderColor: "red",
   },
 });
 

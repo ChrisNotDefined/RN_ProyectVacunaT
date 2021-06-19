@@ -1,9 +1,8 @@
 export default class API_Service {
-  static APIPATH = "https://still-harbor-70009.herokuapp.com/solicitants";
+  static APIPATH = "https://still-harbor-70009.herokuapp.com";
 
   static postSolicitant = async (solicitantID, solicitantData) => {
-    console.log(solicitantData)
-    await fetch(`${this.APIPATH}/${solicitantID}`, {
+    await fetch(`${this.APIPATH}/solicitants/${solicitantID}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -20,44 +19,48 @@ export default class API_Service {
   };
 
   static getSolicitantById = async (solicitantID) => {
-    await fetch(`${this.APIPATH}/${solicitantID}`, {
+    await fetch(`${this.APIPATH}/solicitants/${solicitantID}`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
-    }).then((response) => {
-      return response;
-    }).catch((error) => {
-      console.error(error);
-      return error;
-    });
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error(error);
+        return error;
+      });
   };
 
   static getSolicitants = async () => {
-    await fetch(`${this.APIPATH}`, {
+    await fetch(`${this.APIPATH}/solicitants`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
-    }).then((response) => {
-      return response;
-    }).catch((error) => {
-      console.error(error);
-      return error;
-    });
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error(error);
+        return error;
+      });
   };
 
   // Debe de comprar el pase de expanción
   static updateSolicitant = async (solicitantID, solicitantData) => {
     try {
-      const res = await fetch(`${this.APIPATH}/${solicitantID}`, {
+      const res = await fetch(`${this.APIPATH}/solicitants/${solicitantID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(solicitantData),
       });
-      
+
       if (!res.ok) {
         throw res.statusText;
       }
@@ -66,18 +69,49 @@ export default class API_Service {
     }
   };
 
-
   static deleteSolicitant = async (solicitantID) => {
-    await fetch(`${this.APIPATH}/${solicitantID}`, {
+    await fetch(`${this.APIPATH}/solicitants/${solicitantID}`, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        return response;
+      })
+      .catch((error) => {
+        console.error(err);
+        return error;
+      });
+  };
+
+  static getSolicitudeBySolicitantID = async (solicitantID) => {
+    console.log("Call fetch");
+    try {
+      const response = await fetch(
+        `${this.APIPATH}/solicitude/solicitant/${solicitantID}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      
+      if (!response || response == undefined || response == "" || response.status === 404) {
+        console.log("No response");
+        return null;
       }
-    }).then((response) => {
+
+      if (response.status < 200 && response.status >= 300) {
+        throw "Error at response";
+      }
+      // const data = await response.json();
+      // return data;
       return response;
-    }).catch((error) => {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       return error;
-    });
+    }
   };
 }
