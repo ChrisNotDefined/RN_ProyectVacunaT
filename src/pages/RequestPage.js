@@ -1,128 +1,99 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/core";
+import { ScrollView } from "react-native-gesture-handler";
 import AppBar from "../components/AppBar";
-import { Picker } from "@react-native-picker/picker";
 import InputComponent from "../components/inputComponent";
 import Colors from "../utils/Colors";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Entypo } from "@expo/vector-icons";
 import ButtonComponent from "../components/ButtonComponent";
+import { firebaseAuth } from "../utils/firebaseConfig";
+import API_Service from "../services/API";
+import { validateEmail } from "../utils/validation";
 
 const RequestPage = () => {
-  const initialDate = new Date(Date.now());
-  const [date, setDate] = useState(initialDate);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [pickerValue, setPickerValue] = useState("Hombre");
+  const navigation = useNavigation();
+  const [solicitudData, setSolicitudData] = useState(solicitudValue());
+  const [solicitudErrors, setSolicitudErrors] = useState(errorsValue());
 
-  const changeDate = (e, value) => {
-    setShowDatePicker(false);
-    setDate(value || initialDate);
+  useEffect(() => {
+    console.log(solicitudErrors);
+  }, [solicitudErrors])
+
+  const onChange = (text, type) => {
+    setSolicitudData({ ...solicitudData, [type]: text });
   };
 
-  const handleSolitude = () => {};
+  const sendRequest = async () => {
+    let errors = errorsValue();
+
+    if (
+      !solicitudData ||
+      !solicitudData.CorreoAsociado ||
+      solicitudData.CorreoAsociado == ""
+    ) {
+      Alert.alert("Aviso", "Indique un correo de respaldo", [{ text: "OK" }]);
+      errors.CorreoAsociado = true;
+      setSolicitudErrors(errors);
+      return;
+    }
+
+    if (!validateEmail(solicitudData.CorreoAsociado)) {
+      errors.CorreoAsociado = true;
+      setSolicitudErrors(errors);
+      Alert.alert("Aviso", "El correo ingresado no es válido", [
+        { text: "OK" },
+      ]);
+      console.log("Invalid email");
+      return;
+    }
+
+    setSolicitudErrors(errors);
+
+    var response = await API_Service.postSolicitude(
+      firebaseAuth.currentUser.uid,
+      solicitudData
+    );
+    if (response != null) {
+      navigation.navigate("Home");
+    }
+  };
 
   return (
     <>
       <AppBar />
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.globe}>
-            <Text style={styles.label}>CURP</Text>
-            <View style={{ height: 10 }}></View>
-            <InputComponent placeholder="CURP" />
-          </View>
-
-          <View style={styles.globe}>
-            <Text style={styles.formLabel}>Nombre</Text>
-            <View style={styles.formRow}>
-              <InputComponent
-                style={{ width: "100%" }}
-                placeholder={"Nombre"}
-              />
-            </View>
-            <Text style={styles.formLabel}>Apellido Paterno</Text>
-            <View style={styles.formRow}>
-              <InputComponent
-                style={{ width: "100%" }}
-                placeholder={"Apellido Paterno"}
-              />
-            </View>
-            <Text style={styles.formLabel}>Apellido Materno</Text>
-            <View style={styles.formRow}>
-              <InputComponent
-                style={{ width: "100%" }}
-                placeholder={"Apellido Materno"}
-              />
-            </View>
-            <Text style={styles.formLabel}>Fecha de Nacimiento</Text>
-
-            <View style={styles.formRow}>
-              <TouchableOpacity
-                containerStyle={{ width: "100%" }}
-                onPress={() => {
-                  setShowDatePicker(true);
-                }}
-                style={styles.dateInput}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text style={styles.dateText}>
-                    {date.toLocaleDateString("es-es")}
-                  </Text>
-                  <Entypo name="calendar" size={24} color="black" />
-                </View>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.formLabel}>Correo Electrónico</Text>
-            <View style={styles.formRow}>
-              <InputComponent
-                style={{ width: "100%" }}
-                placeholder={"Correo electrónico"}
-              />
-            </View>
-            <Text style={styles.formLabel}>Lugar de Nacimiento</Text>
-            <View style={styles.formRow}>
-              <InputComponent
-                style={{ width: "100%" }}
-                placeholder={"Lugar de nacimiento"}
-              />
-            </View>
-            <Text style={styles.formLabel}>Edad y Sexo</Text>
-            <View style={[styles.formRow]}>
-              <InputComponent
-                style={{ minWidth: "45%" }}
-                placeholder={"Edad"}
-              />
-              <View style={[styles.sexInput, { minWidth: "45%" }]}>
-                <Picker
-                  style={{ padding: 0 }}
-                  selectedValue={pickerValue}
-                  onValueChange={(val, i) => {
-                    setPickerValue(val);
-                  }}
-                >
-                  <Picker.Item label="Hombre" value="Hombre" />
-                  <Picker.Item label="Mujer" value="Mujer" />
-                </Picker>
-              </View>
-            </View>
-            <ButtonComponent
-              type="default"
-              value={"Solicitar"}
-              onPress={handleSolitude}
+          <Text style={styles.formLabel}>Correo Electrónico</Text>
+          <View style={styles.formRow}>
+            <InputComponent
+              hasError={solicitudErrors.CorreoAsociado}
+              style={{ width: "100%" }}
+              placeholder={"Correo electrónico"}
+              onChangeText={(e) => onChange(e, "CorreoAsociado")}
             />
           </View>
+          <ButtonComponent
+            style={styles.button}
+            type="default"
+            value="Solicitar Vacuna"
+            onPress={() => sendRequest()}
+          ></ButtonComponent>
         </ScrollView>
       </View>
-
-      {showDatePicker && <DateTimePicker onChange={changeDate} value={date} />}
     </>
   );
+};
+
+const solicitudValue = () => {
+  return {
+    CorreoAsociado: null,
+  };
+};
+
+const errorsValue = () => {
+  return {
+    CorreoAsociado: false,
+  };
 };
 
 const styles = StyleSheet.create({
@@ -132,13 +103,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
+  button: {
+    color: "#008BAF",
+    backgroundColor: "#D5F2F1",
+  },
   label: {
     color: "white",
     fontWeight: "bold",
     fontSize: 20,
   },
   formLabel: {
-    color: "white",
+    color: "#008BAF",
   },
   container: {
     flex: 1,

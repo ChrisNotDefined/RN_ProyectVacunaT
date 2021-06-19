@@ -1,16 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
-import InputComponent from "../components/inputComponent";
 import ButtonComponent from "../components/ButtonComponent";
 import { useNavigation } from "@react-navigation/core";
 import Colors from "../utils/Colors";
 import AppBar from "../components/AppBar";
 import { ScrollView } from "react-native-gesture-handler";
 import ProgressBar from "react-native-progress/Bar";
+import { useEffect } from "react";
+import API_Service from "../services/API";
+import { firebaseAuth } from "../utils/firebaseConfig";
 
 const StatusPage = () => {
-
   const navigation = useNavigation();
+  const [solicitude, setSolicitude] = useState();
+
+  useEffect(() => {
+    getSolicitude();
+    const timer = setInterval(() => {
+      getSolicitude();
+    }, 3000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const getSolicitude = async () => {
+    const solicitude = await API_Service.getSolicitudeBySolicitantID(
+      firebaseAuth.currentUser.uid
+    );
+
+    setSolicitude(solicitude);
+  };
+
+  const status = solicitude?.EstadoSolicitud;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -20,53 +43,121 @@ const StatusPage = () => {
         contentContainerStyle={styles.scrollChild}
       >
         <View style={styles.progresscontainer}>
-          <ProgressBar
-            color={"rgba(2, 98, 104, 1)"}
-            animated={true}
-            indeterminate={true}
-            progress={0.5}
-            width={105}
-            height={8}
-          />
+          <View>
+            <Text style={styles.progressText}>
+              {!status ? "Enviando" : "Enviada"}
+            </Text>
+            <View style={{ height: 20 }}></View>
+            <ProgressBar
+              color={"rgba(2, 98, 104, 1)"}
+              animated={true}
+              indeterminate={!status}
+              progress={1}
+              width={105}
+              height={8}
+            />
+          </View>
           <View style={{ width: 10 }} />
-          <ProgressBar
-            color={"rgba(0, 160, 170, 1)"}
-            animated={true}
-            indeterminate={true}
-            progress={0.5}
-            width={105}
-            height={8}
-          />
+          <View>
+            <Text style={styles.progressText}>
+              {status === "Aceptada" || status === "Rechazada"
+                ? "Evaluada"
+                : "En evaluación"}
+            </Text>
+            <View style={{ height: 20 }}></View>
+            <ProgressBar
+              color={"rgba(0, 160, 170, 1)"}
+              animated={true}
+              progress={1}
+              indeterminate={status === "En evaluación"}
+              width={105}
+              height={8}
+            />
+          </View>
           <View style={{ width: 10 }} />
-          <ProgressBar
-            color={"rgba(18, 208, 220, 1)"}
-            animated={true}
-            indeterminate={true}
-            progress={0.5}
-            width={105}
-            height={8}
-          />
+          <View>
+            <Text style={styles.progressText}>
+              {status === "Aceptada" || status === "Rechazada"
+                ? "Preparada"
+                : "Preparando"}
+            </Text>
+            <View style={{ height: 20 }}></View>
+            <ProgressBar
+              color={"rgba(18, 208, 220, 1)"}
+              animated={true}
+              indeterminate={status !== "Aceptada" && status !== "Rechazada"}
+              progress={status === "Aceptada" || status === "Rechazada" ? 1 : 0}
+              width={105}
+              height={8}
+            />
+          </View>
         </View>
         <View style={styles.globe}>
-          <Text style={styles.label}>Fecha aproximada:</Text>
-          <View style={{ height: 10 }}></View>
-          <Text style={styles.label}>Nombre Vacuna:</Text>
-          <View style={{ height: 10 }}></View>
-          <Text style={styles.label}>Numero de Dosis:</Text>
-          <View style={{ height: 10 }}></View>
-          <Text style={styles.label}>Punto de Vacunación:</Text>
+          {loadSolicitudeInfo(solicitude)}
           <View style={{ height: 30 }}></View>
           <ButtonComponent
             style={styles.boton}
             type="default"
             onPress={() => {
-              navigation.navigate("Login");
+              navigation.navigate("Home");
             }}
             value="Cerrar"
           />
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+};
+
+const loadSolicitudeInfo = (solicitude) => {
+  if (!solicitude || !solicitude.EstadoSolicitud) {
+    return <Text>No es posible obtener la informacion</Text>;
+  }
+
+  const possibleOutcomes = {
+    Aceptada: <ValidSolicitudeInfo solicitude={solicitude} />,
+    Rechazada: <DeniedSolicitudeInfo />,
+    "En evaluación": <PendingSolicitudeInfo />,
+  };
+
+  return (
+    possibleOutcomes[solicitude.EstadoSolicitud] || (
+      <Text>{solicitude.EstadoSolicitud}</Text>
+    )
+  );
+};
+
+const ValidSolicitudeInfo = ({ solicitude }) => {
+  return (
+    <>
+      <Text style={styles.message}>
+        Su solicitud ha sido aceptada, su vacuna está registrada
+      </Text>
+      <View style={{ height: 15 }}></View>
+      <Text style={styles.label}>
+        Fecha aproximada: {solicitude.FechaVacunacion}
+      </Text>
+      <View style={{ height: 10 }}></View>
+      <Text style={styles.label}>Nombre Vacuna: {solicitude.NombreVacuna}</Text>
+      <View style={{ height: 10 }}></View>
+    </>
+  );
+};
+
+const DeniedSolicitudeInfo = () => {
+  return (
+    <Text style={styles.message}>
+      Tu solicitud ha sido rechazada, verifica que eres mayor de 50 años y tus
+      datos estén correctos
+    </Text>
+  );
+};
+
+const PendingSolicitudeInfo = () => {
+  return (
+    <Text style={styles.message}>
+      Estamos revisando tu solicitud, en unos minutos tendremos tu respuesta
+    </Text>
   );
 };
 
@@ -86,12 +177,17 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   globe: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     marginTop: 80,
     backgroundColor: Colors.COLOR_PRIMARY,
     padding: 40,
     borderRadius: 10,
     marginVertical: 10,
+  },
+  message: {
+    fontSize: 20,
+    color: "white",
+    textAlign: "center",
   },
   label: {
     color: "white",
@@ -103,6 +199,9 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     justifyContent: "center",
     fontSize: 10,
+  },
+  progressText: {
+    textAlign: "center",
   },
 });
 

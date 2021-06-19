@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native";
 import LoginPage from "./src/pages/LoginPage";
 import RegisterPage from "./src/pages/RegisterPage";
 import HomePage from "./src/pages/HomePage";
@@ -15,19 +15,15 @@ import { firebaseAuth } from "./src/utils/firebaseConfig";
 const Stack = createStackNavigator();
 
 export default function App() {
-
-  // const navigation = useNavigation();
   const navRef = React.useRef(null);
 
   firebaseAuth.onAuthStateChanged((user) => {
-    if(user) {
-      console.log('User logged in');
-      navRef.current?.navigate('Home');
+    if (user) {
+      navRef.current?.navigate("Home");
     } else {
-      console.log('No user');
-      navRef.current?.navigate('Login');
+      navRef.current?.navigate("Login");
     }
-  })
+  });
 
   return (
     <>

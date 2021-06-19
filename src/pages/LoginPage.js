@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, StyleSheet, SafeAreaView, Alert } from "react-native";
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import InputComponent from "../components/inputComponent";
 import ButtonComponent from "../components/ButtonComponent";
 import { useNavigation } from "@react-navigation/core";
@@ -13,6 +19,7 @@ const LoginPage = () => {
   const navigation = useNavigation();
   const [loginData, setLoginData] = useState(defaultValue);
   const [formError, setFormError] = useState({});
+  const [isLoading, setIsloading] = useState(false);
 
   const login = async () => {
     let error = {};
@@ -29,6 +36,7 @@ const LoginPage = () => {
       Alert.alert("Aviso", "Email no válido", [{ text: "OK" }]);
     } else {
       try {
+        setIsloading(true);
         const credentials = await firebaseAuth.signInWithEmailAndPassword(
           loginData.email,
           loginData.password
@@ -36,11 +44,13 @@ const LoginPage = () => {
 
         if (credentials) {
           console.log("Entro");
+          setIsloading(false);
           navigation.navigate("Home");
         }
       } catch (err) {
         console.log("[Error]: " + err.code);
         Alert.alert("Error", getAuthErrorMsg(err.code), [{ text: "OK" }]);
+        setIsloading(false);
         setFormError({
           email: true,
           password: true,
@@ -56,6 +66,11 @@ const LoginPage = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      {isLoading && (
+        <View style={styles.loadOverlay}>
+          <ActivityIndicator size="large" color={Colors.COLOR_PRIMARY} />
+        </View>
+      )}
       <AppBar />
       <ScrollView
         style={styles.container}
@@ -118,6 +133,16 @@ const styles = StyleSheet.create({
   },
   formInput: {
     width: "80%",
+  },
+  loadOverlay: {
+    justifyContent: "center",
+    backgroundColor: "#FFF5",
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    zIndex: 3,
   },
 });
 

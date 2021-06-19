@@ -8,8 +8,8 @@ const InfoPage = () => {
 
   useEffect(() => {
     const fetchImage = async () => {
-      // const obj = await require("../img/advices.jpg");
-      // setImage(obj);
+      const obj = await require("../img/advices.jpg");
+      setImage(obj);
     };
 
     fetchImage();

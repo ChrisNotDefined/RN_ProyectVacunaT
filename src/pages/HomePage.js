@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import ButtonComponent from "../components/ButtonComponent";
 import { useNavigation } from "@react-navigation/core";
 import Colors from "../utils/Colors";
@@ -15,6 +15,11 @@ const HomePage = () => {
 
   useEffect(() => {
     getSolicitude();
+    const cleanup = navigation.addListener("focus", () => {
+      getSolicitude();
+    });
+
+    return cleanup;
   }, []);
 
   const getSolicitude = async () => {
@@ -25,7 +30,6 @@ const HomePage = () => {
       );
       setSolicitude(solicitude);
       setIsloading(false);
-      console.log('Solicitude ', solicitude);
     } catch (error) {
       console.log(error);
     }
@@ -39,6 +43,9 @@ const HomePage = () => {
     <>
       <AppBar />
       <View style={styles.container}>
+        {isLoading && <View style={styles.loadOverlay}>
+          <ActivityIndicator size="large" color={Colors.COLOR_PRIMARY} />
+        </View>}
         {!solicitude ? (
           <ButtonComponent
             type="defualt"
@@ -84,6 +91,16 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     justifyContent: "center",
   },
+  loadOverlay: {
+    justifyContent: 'center',
+    backgroundColor: '#FFF5',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    zIndex: 3
+  }
 });
 
 export default HomePage;

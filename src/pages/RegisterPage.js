@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
+  ActivityIndicator,
   Alert,
   TouchableOpacity,
 } from "react-native";
@@ -25,15 +25,12 @@ const RegisterPage = () => {
   const [registerData, setRegisterData] = useState(defaultValue);
   const [solicitantData, setSolicitantData] = useState(solicitantValue);
   const [formError, setFormError] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const initialDate = new Date(Date.now());
   const [date, setDate] = useState(initialDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerValue, setPickerValue] = useState("Hombre");
-
-  useEffect(() => {
-    console.log(solicitantData);
-  }, [solicitantData]);
 
   const defaultValue = () => {
     return {
@@ -118,17 +115,17 @@ const RegisterPage = () => {
     setFormError({});
 
     try {
+      setIsLoading(true);
       const credentials = await firebaseAuth.createUserWithEmailAndPassword(
         registerData.email,
         registerData.password
       );
-      console.log("Registrado en firebase");
       await API_Service.postSolicitant(credentials.user.uid, solicitantData);
-      console.log("Registrado en mongo");
+      setIsLoading(false);
     } catch (err) {
       console.log("[Error:] ", err.code);
-
       Alert.alert("Error", getAuthErrorMsg(err.code), [{ text: "OK" }]);
+      setIsLoading(false);
     }
   };
 
@@ -144,6 +141,11 @@ const RegisterPage = () => {
     <>
       <AppBar />
       <View style={styles.container}>
+        {isLoading && (
+          <View style={styles.loadOverlay}>
+            <ActivityIndicator size="large" color={Colors.COLOR_PRIMARY} />
+          </View>
+        )}
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.globe}>
             <Text style={styles.label}>CURP</Text>
@@ -193,7 +195,7 @@ const RegisterPage = () => {
                 onPress={() => {
                   setShowDatePicker(true);
                 }}
-                style={[styles.dateInput, {width: '100%'}]}
+                style={[styles.dateInput, { width: "100%" }]}
               >
                 <View
                   style={{
@@ -356,6 +358,17 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 20,
+  },
+
+  loadOverlay: {
+    justifyContent: "center",
+    backgroundColor: "#FFF5",
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    zIndex: 3,
   },
 });
 

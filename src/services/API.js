@@ -86,7 +86,6 @@ export default class API_Service {
   };
 
   static getSolicitudeBySolicitantID = async (solicitantID) => {
-    console.log("Call fetch");
     try {
       const response = await fetch(
         `${this.APIPATH}/solicitude/solicitant/${solicitantID}`,
@@ -97,21 +96,49 @@ export default class API_Service {
           },
         }
       );
-      
-      if (!response || response == undefined || response == "" || response.status === 404) {
+
+      if (
+        !response ||
+        response == undefined ||
+        response == "" ||
+        response.status === 404
+      ) {
         console.log("No response");
+        console.log(response.status);
         return null;
       }
 
       if (response.status < 200 && response.status >= 300) {
         throw "Error at response";
       }
-      // const data = await response.json();
-      // return data;
-      return response;
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error(error);
       return error;
     }
   };
+
+  static postSolicitude = async (solicitantID, solicitudData) => {
+    try {
+      const response = await fetch(`${this.APIPATH}/solicitude/${solicitantID}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(solicitudData),
+      });
+
+      if(!response) {
+        return null;
+      }
+
+      return response;
+    }
+    catch (error) {
+      console.error(error);
+      return error;
+    }
+  }
 }
