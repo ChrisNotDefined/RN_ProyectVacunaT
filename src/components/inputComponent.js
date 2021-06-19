@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Dimensions } from "react-native";
+import React from "react";
+import { View, TextInput, StyleSheet, Dimensions } from "react-native";
 import Colors from "../utils/Colors";
 
 const InputComponent = (props) => {
@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
   },
   error: {
     borderColor: "red",
+    backgroundColor: "#FFF8FF"
   },
 });
 

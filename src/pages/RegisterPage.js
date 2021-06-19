@@ -21,25 +21,7 @@ import { Entypo } from "@expo/vector-icons";
 import API_Service from "../services/API";
 
 const RegisterPage = () => {
-  const navigation = useNavigation();
-  const [registerData, setRegisterData] = useState(defaultValue);
-  const [solicitantData, setSolicitantData] = useState(solicitantValue);
-  const [formError, setFormError] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-
   const initialDate = new Date(Date.now());
-  const [date, setDate] = useState(initialDate);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [pickerValue, setPickerValue] = useState("Hombre");
-
-  const defaultValue = () => {
-    return {
-      email: null,
-      password: null,
-      confirmPass: null,
-    };
-  };
-
   const solicitantValue = () => {
     return {
       name: null,
@@ -52,6 +34,24 @@ const RegisterPage = () => {
       lugarNacimiento: null,
     };
   };
+
+  const defaultValue = () => {
+    return {
+      email: null,
+      password: null,
+      confirmPass: null,
+    };
+  };
+
+  const navigation = useNavigation();
+  const [registerData, setRegisterData] = useState(defaultValue());
+  const [solicitantData, setSolicitantData] = useState(solicitantValue());
+  const [formError, setFormError] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [date, setDate] = useState(initialDate);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pickerValue, setPickerValue] = useState("Hombre");
 
   const changeDate = (e, value) => {
     setShowDatePicker(false);
@@ -263,6 +263,7 @@ const RegisterPage = () => {
                 <Picker
                   style={{ padding: 0 }}
                   selectedValue={pickerValue}
+                  mode="dropdown"
                   onValueChange={(val, i) => {
                     setPickerValue(val);
                     onChange(val, "sexo", "solicitant");

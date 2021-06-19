@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import ButtonComponent from "../components/ButtonComponent";
 import { useNavigation } from "@react-navigation/core";
 import Colors from "../utils/Colors";
